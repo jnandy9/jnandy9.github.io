@@ -82,9 +82,10 @@ export default function History() {
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
-                <a className="btn-brass flex-1" href={api.pdfUrl(inv.id)} target="_blank" rel="noreferrer">
-                  View PDF
-                </a>
+                <button className="btn-brass flex-1"
+                  onClick={() => api.downloadPdf(inv).catch((e) => notify(e.message, 'error'))}>
+                  Download PDF
+                </button>
                 <button className="btn-outline" onClick={() => navigate(`/new/${inv.id}`)}>Edit</button>
                 <button className="btn-outline text-red" onClick={() => setConfirmId(inv.id)}>Delete</button>
               </div>
