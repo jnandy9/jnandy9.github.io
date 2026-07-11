@@ -169,7 +169,7 @@ export default function NewInvoice() {
       }
       const inv = editId ? await api.updateInvoice(editId, body) : await api.createInvoice(body)
       notify(editId ? 'Invoice updated' : 'Invoice saved')
-      window.open(api.pdfUrl(inv.id), '_blank')
+      await api.downloadPdf(inv)
       loadLists()
       if (editId) navigate('/history')
       else { setDraft(newDraft()); setSerial('') }

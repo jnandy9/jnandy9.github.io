@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 
 from bson import ObjectId
@@ -130,9 +131,12 @@ async def invoice_pdf(id: str):
         raise HTTPException(status_code=404, detail="Invoice not found")
     biz = await db.get_db()["settings"].find_one({"_id": "business"}) or {}
     pdf_bytes = build_invoice_pdf(serialize(doc), biz)
-    safe = "".join(ch if ch.isalnum() else "_" for ch in (doc.get("invoice_no") or "invoice"))
+    # filename: "<buyer company> <bill serial>.pdf"  e.g. "NANDY WORKS 02.pdf"
+    buyer = ((doc.get("buyer") or {}).get("name") or "Invoice").strip()
+    serial = (doc.get("invoice_no") or "invoice").split("/")[0].strip()
+    safe = re.sub(r'[\\/:*?"<>|\r\n]+', "", f"{buyer} {serial}").strip() or "Invoice"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'inline; filename="Invoice_{safe}.pdf"'},
+        headers={"Content-Disposition": f'attachment; filename="{safe}.pdf"'},
     )
